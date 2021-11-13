@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace EmployeeFinance.Controllers
 {
-    [Authorize(Roles="Admin")]
-    [Authorize]
+    //[Authorize(Roles="Admin")]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase

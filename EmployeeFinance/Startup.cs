@@ -50,6 +50,7 @@ namespace EmployeeFinance
                 };
             });
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
+            services.AddTransient<IAdminManager, AdminManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

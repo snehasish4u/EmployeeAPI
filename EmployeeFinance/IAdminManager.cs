@@ -9,5 +9,8 @@ namespace EmployeeFinance
     public interface IAdminManager
     {
         Task<List<DesignationModel>> GetDesignation();
+        Task CreateDesignation(DesignationModel model);
+        Task UpdateDesignation(DesignationModel model);
+        Task DeleteDesignation(int id);
     }
 }

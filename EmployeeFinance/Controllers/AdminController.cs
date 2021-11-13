@@ -24,5 +24,20 @@ namespace EmployeeFinance.Controllers
             var result = await _adminManager.GetDesignation();
             return this.Ok(result);
         }
+        [HttpPost]
+        public async Task CreateDesignation(DesignationModel model)
+        {
+             await _adminManager.CreateDesignation(model);            
+        }
+        [HttpPut]
+        public async Task UpdateDesignation(DesignationModel model)
+        {
+            await _adminManager.UpdateDesignation(model);
+        }
+        public async Task DeleteDesignation(int id)
+        {
+            await _adminManager.DeleteDesignation(id);
+        }
+
     }
 }

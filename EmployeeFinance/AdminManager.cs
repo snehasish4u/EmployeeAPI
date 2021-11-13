@@ -13,15 +13,24 @@ namespace EmployeeFinance
     {
         public async Task CreateDesignation(DesignationModel model)
         {
-            await using var context = new VYPAK_PAYROLLContext();
-            var result = context.DesignationMsts.Add(new DesignationMst()
+            try
             {
-                DesigId = model.Id,
-                DesigName =model.DesignationName,
-                DesigShtName = model.Shortname
-            });
+                await using var context = new VYPAK_PAYROLLContext();
+                int newId = context.DesignationMsts.Max(x => x.DesigId);
+                context.DesignationMsts.Add(new DesignationMst()
+                {
+                    DesigId = newId + 1,
+                    DesigCode = string.Concat("DESG", newId + 1),
+                    DesigName = model.DesignationName,
+                    DesigShtName = model.Shortname
+                });
 
-            context.SaveChanges();
+                context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                
+            }
         }
 
         public async Task<List<DesignationModel>> GetDesignation()
@@ -36,6 +45,25 @@ namespace EmployeeFinance
             });
             return designation.ToList();
         }
+
+        public async Task<DesignationModel> GetDesignationById(int id)
+        {
+            await using var context = new VYPAK_PAYROLLContext();
+            var designation = context.DesignationMsts.FirstOrDefault(s => s.DesigId == id);
+            var designationModel = new DesignationModel();
+            if (designation != null)
+            {
+                designationModel = new DesignationModel
+                {
+                    Id = designation.DesigId,
+                    Shortname = designation.DesigShtName,
+                    DesignationName = designation.DesigName
+                };
+            }
+            
+            return designationModel;
+        }
+
         public async Task UpdateDesignation(DesignationModel model)
         {
             await using (var context = new VYPAK_PAYROLLContext())
@@ -49,24 +77,25 @@ namespace EmployeeFinance
 
                     context.SaveChanges();
                 }
-                else
-                {
-                    //return NotFound();
-                    
-                }
             }
-            //return Ok();
         }
-        public async Task DeleteDesignation(int id)
-        {
-           await using (var context = new VYPAK_PAYROLLContext())
-            {
-                var designation = context.DesignationMsts
-                    .Where(s => s.DesigId == id)
-                    .FirstOrDefault();
 
-                context.Entry(designation).State = EntityState.Deleted;
+        public async Task DeleteDesignation(string ids)
+        {
+            try
+            {
+
+                await using var context = new VYPAK_PAYROLLContext();
+                string[] values = ids.Split(',');
+                foreach (var val in values)
+                {
+                    var designation = context.DesignationMsts.FirstOrDefault(x => x.DesigId == Convert.ToInt32(val));
+                    context.DesignationMsts.Remove(designation);
+                }
                 context.SaveChanges();
+            }
+            catch (Exception e)
+            {
             }
         }
 

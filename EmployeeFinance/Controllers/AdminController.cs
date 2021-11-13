@@ -24,19 +24,35 @@ namespace EmployeeFinance.Controllers
             var result = await _adminManager.GetDesignation();
             return this.Ok(result);
         }
+
+        [Route("GetDesignationById/{id}")]
+        [HttpGet]
+        public async Task<IActionResult> GetDesignationById(int id)
+        {
+            var result = await _adminManager.GetDesignationById(id);
+            return this.Ok(result);
+        }
+
+        [Route("CreateDesignation")]
         [HttpPost]
-        public async Task CreateDesignation(DesignationModel model)
+        public async Task CreateDesignation([FromBody]DesignationModel model)
         {
              await _adminManager.CreateDesignation(model);            
         }
+
+        [Route("UpdateDesignation")]
         [HttpPut]
-        public async Task UpdateDesignation(DesignationModel model)
+        public async Task UpdateDesignation([FromBody]DesignationModel model)
         {
             await _adminManager.UpdateDesignation(model);
         }
-        public async Task DeleteDesignation(int id)
+
+
+        [Route("DeleteDesignation/{ids}")]
+        [HttpDelete]
+        public async Task DeleteDesignation(string ids)
         {
-            await _adminManager.DeleteDesignation(id);
+            await _adminManager.DeleteDesignation(ids);
         }
 
     }

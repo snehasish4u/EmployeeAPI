@@ -11,6 +11,7 @@ namespace EmployeeFinance
         Task<List<DesignationModel>> GetDesignation();
         Task CreateDesignation(DesignationModel model);
         Task UpdateDesignation(DesignationModel model);
-        Task DeleteDesignation(int id);
+        Task DeleteDesignation(string ids);
+        Task<DesignationModel> GetDesignationById(int id);
     }
 }

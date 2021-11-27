@@ -37,6 +37,7 @@ namespace EmployeeFinance.Models
         public virtual DbSet<LeaveMaster> LeaveMasters { get; set; }
         public virtual DbSet<LumsumEditorMst> LumsumEditorMsts { get; set; }
         public virtual DbSet<OccupationMaster> OccupationMasters { get; set; }
+        public virtual DbSet<PayHeadDetail> PayHeadDetails { get; set; }
         public virtual DbSet<PayHeadMapMaster> PayHeadMapMasters { get; set; }
         public virtual DbSet<PayHeadMst> PayHeadMsts { get; set; }
         public virtual DbSet<PayheadMapSlab> PayheadMapSlabs { get; set; }
@@ -61,7 +62,7 @@ namespace EmployeeFinance.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=VYPAK_PAYROLL;User ID=admin;pwd=Aquarius@123");
+                optionsBuilder.UseSqlServer("Server=ENCOPDBANLT0852\\SQLEXPRESS;Database=VYPAK_PAYROLL;user id=admin;pwd=Aquarius@123");
             }
         }
 
@@ -1223,6 +1224,98 @@ namespace EmployeeFinance.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("Occupation_Short_Name");
+            });
+
+            modelBuilder.Entity<PayHeadDetail>(entity =>
+            {
+                entity.HasKey(e => e.PayheadDtlId);
+
+                entity.ToTable("PayHead_Details");
+
+                entity.Property(e => e.PayheadDtlId).HasColumnName("Payhead_Dtl_Id");
+
+                entity.Property(e => e.AttachAs)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasColumnName("Attach_As");
+
+                entity.Property(e => e.ClacOnPresentDay)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("Clac_On_Present_Day");
+
+                entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
+
+                entity.Property(e => e.CreatedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Created_On")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.EffectiveFrom)
+                    .HasColumnType("date")
+                    .HasColumnName("Effective_From");
+
+                entity.Property(e => e.ExemptionLimit)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Exemption_Limit");
+
+                entity.Property(e => e.Formula)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("Is_Deleted")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.IsExcludeFromCtc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("Is_Exclude_From_CTC");
+
+                entity.Property(e => e.IsTaxable)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("Is_Taxable");
+
+                entity.Property(e => e.IsWeeklyOff)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("Is_Weekly_Off");
+
+                entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
+
+                entity.Property(e => e.ModifiedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Modified_On");
+
+                entity.Property(e => e.PayheadCode)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("Payhead_code");
+
+                entity.Property(e => e.PayheadId).HasColumnName("Payhead_Id");
+
+                entity.Property(e => e.PayheadName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Payhead_Name");
+
+                entity.Property(e => e.PaymapCalcType)
+                    .HasMaxLength(5)
+                    .IsUnicode(false)
+                    .HasColumnName("Paymap_Calc_Type");
+
+                entity.Property(e => e.PrintInSlip)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("Print_In_Slip");
+
+                entity.Property(e => e.RoundOff)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Round_Off");
             });
 
             modelBuilder.Entity<PayHeadMapMaster>(entity =>

@@ -13,5 +13,8 @@ namespace EmployeeFinance
         Task UpdateDesignation(DesignationModel model);
         Task DeleteDesignation(string ids);
         Task<DesignationModel> GetDesignationById(int id);
+        Task<List<PayHeadMapMaster>> GetPayHeadCalculationTypes();
+        Task<List<PayHeadMst>> GetPayHeadNames();
+        Task<List<PayHeadDetail>> GetPayHeadAttachments();
     }
 }

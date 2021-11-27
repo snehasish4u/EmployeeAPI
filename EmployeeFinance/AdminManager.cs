@@ -3,34 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EmployeeFinance.Models;
-using EmployeeManagement.Enums;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeFinance
 {
     public class AdminManager : IAdminManager
     {
+        #region Designation
         public async Task CreateDesignation(DesignationModel model)
         {
-            try
+            await using var context = new VYPAK_PAYROLLContext();
+            int newId = context.DesignationMsts.Max(x => x.DesigId);
+            context.DesignationMsts.Add(new DesignationMst()
             {
-                await using var context = new VYPAK_PAYROLLContext();
-                int newId = context.DesignationMsts.Max(x => x.DesigId);
-                context.DesignationMsts.Add(new DesignationMst()
-                {
-                    DesigId = newId + 1,
-                    DesigCode = string.Concat("DESG", newId + 1),
-                    DesigName = model.DesignationName,
-                    DesigShtName = model.Shortname
-                });
+                DesigId = newId + 1,
+                DesigCode = string.Concat("DESG", newId + 1),
+                DesigName = model.DesignationName,
+                DesigShtName = model.Shortname
+            });
 
-                context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                
-            }
+            context.SaveChanges();
         }
 
         public async Task<List<DesignationModel>> GetDesignation()
@@ -60,7 +51,7 @@ namespace EmployeeFinance
                     DesignationName = designation.DesigName
                 };
             }
-            
+
             return designationModel;
         }
 
@@ -68,7 +59,7 @@ namespace EmployeeFinance
         {
             await using (var context = new VYPAK_PAYROLLContext())
             {
-                var existingStudent = context.DesignationMsts.Where(s => s.DesigId == model.Id).FirstOrDefault();
+                var existingStudent = context.DesignationMsts.FirstOrDefault(s => s.DesigId == model.Id);
 
                 if (existingStudent != null)
                 {
@@ -82,22 +73,65 @@ namespace EmployeeFinance
 
         public async Task DeleteDesignation(string ids)
         {
-            try
+            await using var context = new VYPAK_PAYROLLContext();
+            string[] values = ids.Split(',');
+            foreach (var val in values)
             {
+                var designation = context.DesignationMsts.FirstOrDefault(x => x.DesigId == Convert.ToInt32(val));
+                context.DesignationMsts.Remove(designation);
+            }
 
-                await using var context = new VYPAK_PAYROLLContext();
-                string[] values = ids.Split(',');
-                foreach (var val in values)
-                {
-                    var designation = context.DesignationMsts.FirstOrDefault(x => x.DesigId == Convert.ToInt32(val));
-                    context.DesignationMsts.Remove(designation);
-                }
-                context.SaveChanges();
-            }
-            catch (Exception e)
+            context.SaveChanges();
+        }
+        #endregion
+
+        #region PayHead
+        
+        //public async Task CreatePayHeadDetails(Dto.PayHeadMapMaster model)
+        //{
+        //    await using var context = new VYPAK_PAYROLLContext();
+        //    context.PayHeadMsts.Add(new PayHeadMst()
+        //    {
+        //        PayHeadName = "Name"
+        //    });
+        //    context.PayHeadMapMasters.Add(new Models.PayHeadMapMaster()
+        //    {
+        //        PaymapCalcType = "type"
+        //    });
+        //    context.SaveChanges();
+        //}
+
+        public async Task<List<PayHeadMapMaster>> GetPayHeadCalculationTypes()
+        {
+            await using var context = new VYPAK_PAYROLLContext();
+            var calculationTypes = context.PayHeadMapMasters.Select(x => new PayHeadMapMaster
             {
-            }
+                PaymapCalcType = x.PaymapCalcType,
+                RowId = x.RowId
+            });
+            return calculationTypes.ToList();
         }
 
+        public async Task<List<PayHeadMst>> GetPayHeadNames()
+        {
+            await using var context = new VYPAK_PAYROLLContext();
+            var payHeadNames = context.PayHeadMsts.Select(x => new PayHeadMst
+            {
+                PayHeadName = x.PayHeadName
+            });
+            return payHeadNames.ToList();
+        }
+
+        public async Task<List<PayHeadDetail>> GetPayHeadAttachments()
+        {
+            await using var context = new VYPAK_PAYROLLContext();
+            var payHeadAttachments = context.PayHeadDetails.Select(x => new PayHeadDetail
+            {
+                AttachAs = x.AttachAs
+            });
+            return payHeadAttachments.ToList();
+        }
+
+        #endregion
     }
 }

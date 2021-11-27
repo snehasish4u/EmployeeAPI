@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace EmployeeFinance.Controllers
@@ -17,6 +13,7 @@ namespace EmployeeFinance.Controllers
             _adminManager = adminManager;
         }
 
+        #region Designation
         [Route("GetDesignation")]
         [HttpGet]
         public async Task<IActionResult> GetDesignation()
@@ -35,14 +32,14 @@ namespace EmployeeFinance.Controllers
 
         [Route("CreateDesignation")]
         [HttpPost]
-        public async Task CreateDesignation([FromBody]DesignationModel model)
+        public async Task CreateDesignation([FromBody] DesignationModel model)
         {
-             await _adminManager.CreateDesignation(model);            
+            await _adminManager.CreateDesignation(model);
         }
 
         [Route("UpdateDesignation")]
         [HttpPut]
-        public async Task UpdateDesignation([FromBody]DesignationModel model)
+        public async Task UpdateDesignation([FromBody] DesignationModel model)
         {
             await _adminManager.UpdateDesignation(model);
         }
@@ -54,6 +51,34 @@ namespace EmployeeFinance.Controllers
         {
             await _adminManager.DeleteDesignation(ids);
         }
+        #endregion
+
+        #region PayHead
+        [Route("GetPayHeadCalculationTypes")]
+        [HttpGet]
+        public async Task<IActionResult> GetPayHeadCalculationTypes()
+        {
+            var result = await _adminManager.GetPayHeadCalculationTypes();
+            return this.Ok(result);
+        }
+
+        [Route("GetPayHeadNames")]
+        [HttpGet]
+        public async Task<IActionResult> GetPayHeadNames()
+        {
+            var result = await _adminManager.GetPayHeadNames();
+            return this.Ok(result);
+        }
+
+        [Route("GetPayHeadAttachments")]
+        [HttpGet]
+        public async Task<IActionResult> GetPayHeadAttachments()
+        {
+            var result = await _adminManager.GetPayHeadAttachments();
+            return this.Ok(result);
+        }
+
+        #endregion
 
     }
 }

@@ -9,8 +9,10 @@ namespace EmployeeFinance.Models
     {
         public int RowId { get; set; }
         public int DivisionId { get; set; }
+        public string DivisionCode { get; set; }
         public string DivisionName { get; set; }
-        public string DivisionShortName { get; set; }
+        public string DivisionAlias { get; set; }
+        public string DivisionEmail { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }
         public int? ModifiedBy { get; set; }

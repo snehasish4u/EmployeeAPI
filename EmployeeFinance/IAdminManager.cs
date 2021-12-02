@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EmployeeFinance.Dto;
 using EmployeeFinance.Models;
 
 namespace EmployeeFinance
@@ -13,8 +14,9 @@ namespace EmployeeFinance
         Task UpdateDesignation(DesignationModel model);
         Task DeleteDesignation(string ids);
         Task<DesignationModel> GetDesignationById(int id);
-        Task<List<PayHeadMapMaster>> GetPayHeadCalculationTypes();
+        Task<List<PayCalculationType>> GetPayHeadCalculationTypes();
         Task<List<PayHeadMst>> GetPayHeadNames();
-        Task<List<PayHeadDetail>> GetPayHeadAttachments();
+        Task<List<PayHeadAttachType>> GetPayHeadAttachments();
+        Task SavePayDetailsMapping(PayHeadDetailDto payHeadDetailDto);
     }
 }

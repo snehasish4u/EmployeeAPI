@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using EmployeeFinance.Dto;
 
 namespace EmployeeFinance.Controllers
 {
@@ -76,6 +77,13 @@ namespace EmployeeFinance.Controllers
         {
             var result = await _adminManager.GetPayHeadAttachments();
             return this.Ok(result);
+        }
+
+        [Route("SavePayDetailsMapping")]
+        [HttpPost]
+        public async Task SavePayDetailsMapping([FromBody] PayHeadDetailDto payHeadDetailDto)
+        {
+            await _adminManager.SavePayDetailsMapping(payHeadDetailDto);
         }
 
         #endregion

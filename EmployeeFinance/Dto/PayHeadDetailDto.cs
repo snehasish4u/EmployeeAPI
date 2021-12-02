@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-#nullable disable
-
-namespace EmployeeFinance.Models
+namespace EmployeeFinance.Dto
 {
-    public partial class PayHeadDetail
+    public class PayHeadDetailDto
     {
-        public int PayheadDtlId { get; set; }
+        public int Id { get; set; }
         public DateTime EffectiveFrom { get; set; }
         public int Grade { get; set; }
         public int PayheadId { get; set; }

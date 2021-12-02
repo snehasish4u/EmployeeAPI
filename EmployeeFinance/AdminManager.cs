@@ -2,16 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EmployeeFinance.Dto;
 using EmployeeFinance.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace EmployeeFinance
 {
     public class AdminManager : IAdminManager
     {
+        private readonly IConfiguration _iConfiguration;
+
+        public AdminManager(IConfiguration iConfiguration)
+        {
+            _iConfiguration = iConfiguration;
+        }
         #region Designation
         public async Task CreateDesignation(DesignationModel model)
         {
-            await using var context = new VYPAK_PAYROLLContext();
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
             int newId = context.DesignationMsts.Max(x => x.DesigId);
             context.DesignationMsts.Add(new DesignationMst()
             {
@@ -26,7 +34,7 @@ namespace EmployeeFinance
 
         public async Task<List<DesignationModel>> GetDesignation()
         {
-            await using var context = new VYPAK_PAYROLLContext();
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
             var result = context.DesignationMsts.ToList();
             var designation = result.Select(x => new DesignationModel
             {
@@ -39,7 +47,7 @@ namespace EmployeeFinance
 
         public async Task<DesignationModel> GetDesignationById(int id)
         {
-            await using var context = new VYPAK_PAYROLLContext();
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
             var designation = context.DesignationMsts.FirstOrDefault(s => s.DesigId == id);
             var designationModel = new DesignationModel();
             if (designation != null)
@@ -57,7 +65,7 @@ namespace EmployeeFinance
 
         public async Task UpdateDesignation(DesignationModel model)
         {
-            await using (var context = new VYPAK_PAYROLLContext())
+            await using (var context = new VYPAK_PAYROLLContext(_iConfiguration))
             {
                 var existingStudent = context.DesignationMsts.FirstOrDefault(s => s.DesigId == model.Id);
 
@@ -73,7 +81,7 @@ namespace EmployeeFinance
 
         public async Task DeleteDesignation(string ids)
         {
-            await using var context = new VYPAK_PAYROLLContext();
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
             string[] values = ids.Split(',');
             foreach (var val in values)
             {
@@ -87,34 +95,21 @@ namespace EmployeeFinance
 
         #region PayHead
         
-        //public async Task CreatePayHeadDetails(Dto.PayHeadMapMaster model)
-        //{
-        //    await using var context = new VYPAK_PAYROLLContext();
-        //    context.PayHeadMsts.Add(new PayHeadMst()
-        //    {
-        //        PayHeadName = "Name"
-        //    });
-        //    context.PayHeadMapMasters.Add(new Models.PayHeadMapMaster()
-        //    {
-        //        PaymapCalcType = "type"
-        //    });
-        //    context.SaveChanges();
-        //}
-
-        public async Task<List<PayHeadMapMaster>> GetPayHeadCalculationTypes()
+        public async Task<List<PayCalculationType>> GetPayHeadCalculationTypes()
         {
-            await using var context = new VYPAK_PAYROLLContext();
-            var calculationTypes = context.PayHeadMapMasters.Select(x => new PayHeadMapMaster
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
+            var calculationTypeList = context.PayCalculationTypeMsts.Select(x => new PayCalculationType
             {
-                PaymapCalcType = x.PaymapCalcType,
-                RowId = x.RowId
-            });
-            return calculationTypes.ToList();
+                Id = x.Id,
+                CalculationType = x.CalculationType,
+                Allias = x.Allias
+            }).ToList();
+            return calculationTypeList;
         }
 
         public async Task<List<PayHeadMst>> GetPayHeadNames()
         {
-            await using var context = new VYPAK_PAYROLLContext();
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
             var payHeadNames = context.PayHeadMsts.Select(x => new PayHeadMst
             {
                 PayHeadName = x.PayHeadName
@@ -122,14 +117,48 @@ namespace EmployeeFinance
             return payHeadNames.ToList();
         }
 
-        public async Task<List<PayHeadDetail>> GetPayHeadAttachments()
+        public async Task<List<PayHeadAttachType>> GetPayHeadAttachments()
         {
-            await using var context = new VYPAK_PAYROLLContext();
-            var payHeadAttachments = context.PayHeadDetails.Select(x => new PayHeadDetail
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
+            var payHeadAttachments = context.PayHeadAttacheMsts.Select(x => new PayHeadAttachType
             {
-                AttachAs = x.AttachAs
+                Id = x.Id,
+                AttachTo = x.AttachTo,
+                Allias = x.Allias
             });
             return payHeadAttachments.ToList();
+        }
+
+        public async Task SavePayDetailsMapping(PayHeadDetailDto payHeadDetailDto)
+        {
+            await using var context = new VYPAK_PAYROLLContext(_iConfiguration);
+            int newId = context.DesignationMsts.Max(x => x.DesigId);
+            context.PayHeadDetails.Add(new PayHeadDetail
+            {
+                EffectiveFrom = payHeadDetailDto.EffectiveFrom,
+                Grade = payHeadDetailDto.Grade,
+                PayheadId = payHeadDetailDto.PayheadId,
+                PayheadCode = payHeadDetailDto.PayheadCode ?? "H01",
+                PayheadName = payHeadDetailDto.PayheadName ?? "Engineering Dept",
+                PaymapCalcType = payHeadDetailDto.PaymapCalcType,
+                Narration = payHeadDetailDto.Narration,
+                AttachAs = payHeadDetailDto.AttachAs,
+                Formula = payHeadDetailDto.Formula,
+                PrintInSlip = payHeadDetailDto.PrintInSlip == "True" ? "Y" : "N",
+                RoundOff = payHeadDetailDto.RoundOff == "True" ? "Y" : "N",
+                ClacOnPresentDay = payHeadDetailDto.ClacOnPresentDay == "True" ? "Y" : "N",
+                IsWeeklyOff = payHeadDetailDto.IsWeeklyOff == "True" ? "Y" : "N",
+                IsTaxable = payHeadDetailDto.IsTaxable,
+                ExemptionLimit = payHeadDetailDto.ExemptionLimit,
+                IsExcludeFromCtc = payHeadDetailDto.IsExcludeFromCtc,
+                CreatedBy = payHeadDetailDto.CreatedBy,
+                CreatedOn = DateTime.Now,
+                ModifiedBy = payHeadDetailDto.ModifiedBy,
+                ModifiedOn = DateTime.Now,
+                IsDeleted = false
+            });
+
+            context.SaveChanges();
         }
 
         #endregion

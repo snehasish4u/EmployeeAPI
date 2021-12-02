@@ -5,13 +5,12 @@ using System.Collections.Generic;
 
 namespace EmployeeFinance.Models
 {
-    public partial class DepartmentMst
+    public partial class SkillMaster
     {
-        public int DepartmentId { get; set; }
-        public string DepartmentCode { get; set; }
-        public string DepartmentName { get; set; }
-        public string DepartmentAlias { get; set; }
-        public string DepartmentEmail { get; set; }
+        public int RowId { get; set; }
+        public int SkillId { get; set; }
+        public string SkillName { get; set; }
+        public string SkillAlias { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }
         public int? ModifiedBy { get; set; }

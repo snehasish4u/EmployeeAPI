@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 #nullable disable
 
@@ -8,8 +9,11 @@ namespace EmployeeFinance.Models
 {
     public partial class VYPAK_PAYROLLContext : DbContext
     {
-        public VYPAK_PAYROLLContext()
+        private readonly IConfiguration _iConfiguration;
+
+        public VYPAK_PAYROLLContext(IConfiguration iConfiguration)
         {
+            _iConfiguration = iConfiguration;
         }
 
         public VYPAK_PAYROLLContext(DbContextOptions<VYPAK_PAYROLLContext> options)
@@ -19,6 +23,7 @@ namespace EmployeeFinance.Models
 
         public virtual DbSet<AttendanceMaster> AttendanceMasters { get; set; }
         public virtual DbSet<BankMaster> BankMasters { get; set; }
+        public virtual DbSet<CategoryMaster> CategoryMasters { get; set; }
         public virtual DbSet<CityMaster> CityMasters { get; set; }
         public virtual DbSet<CountryMaster> CountryMasters { get; set; }
         public virtual DbSet<DepartmentMst> DepartmentMsts { get; set; }
@@ -37,13 +42,16 @@ namespace EmployeeFinance.Models
         public virtual DbSet<LeaveMaster> LeaveMasters { get; set; }
         public virtual DbSet<LumsumEditorMst> LumsumEditorMsts { get; set; }
         public virtual DbSet<OccupationMaster> OccupationMasters { get; set; }
+        public virtual DbSet<PayCalculationTypeMst> PayCalculationTypeMsts { get; set; }
+        public virtual DbSet<PayHeadAttacheMst> PayHeadAttacheMsts { get; set; }
         public virtual DbSet<PayHeadDetail> PayHeadDetails { get; set; }
-        public virtual DbSet<PayHeadMapMaster> PayHeadMapMasters { get; set; }
         public virtual DbSet<PayHeadMst> PayHeadMsts { get; set; }
-        public virtual DbSet<PayheadMapSlab> PayheadMapSlabs { get; set; }
+        public virtual DbSet<PayheadSlab> PayheadSlabs { get; set; }
         public virtual DbSet<PfEsiRateSetting> PfEsiRateSettings { get; set; }
         public virtual DbSet<PfgroupMst> PfgroupMsts { get; set; }
         public virtual DbSet<PfsettingMst> PfsettingMsts { get; set; }
+        public virtual DbSet<PolicyTypeMaster> PolicyTypeMasters { get; set; }
+        public virtual DbSet<ProjectMaster> ProjectMasters { get; set; }
         public virtual DbSet<PtgroupMst> PtgroupMsts { get; set; }
         public virtual DbSet<PtrateMst> PtrateMsts { get; set; }
         public virtual DbSet<QualficationMaster> QualficationMasters { get; set; }
@@ -51,6 +59,7 @@ namespace EmployeeFinance.Models
         public virtual DbSet<SalaryCalendarMaster> SalaryCalendarMasters { get; set; }
         public virtual DbSet<SalaryStructMst> SalaryStructMsts { get; set; }
         public virtual DbSet<SiteMaster> SiteMasters { get; set; }
+        public virtual DbSet<SkillMaster> SkillMasters { get; set; }
         public virtual DbSet<StateMaster> StateMasters { get; set; }
         public virtual DbSet<TblCompany> TblCompanies { get; set; }
         public virtual DbSet<TblCompanyBranch> TblCompanyBranches { get; set; }
@@ -62,7 +71,7 @@ namespace EmployeeFinance.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=ENCOPDBANLT0852\\SQLEXPRESS;Database=VYPAK_PAYROLL;user id=admin;pwd=Aquarius@123");
+                optionsBuilder.UseSqlServer(_iConfiguration.GetValue<string>("ConnectionStrings:Connection"));
             }
         }
 
@@ -154,6 +163,11 @@ namespace EmployeeFinance.Models
                     .IsUnicode(false)
                     .HasColumnName("Bank_Code");
 
+                entity.Property(e => e.AccountType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Account_Type");
+
                 entity.Property(e => e.Address).IsUnicode(false);
 
                 entity.Property(e => e.BankAccNo)
@@ -169,6 +183,11 @@ namespace EmployeeFinance.Models
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("Bank_Sht_Name");
+
+                entity.Property(e => e.BranchCode)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("Branch_Code");
 
                 entity.Property(e => e.BranchName)
                     .HasMaxLength(50)
@@ -191,11 +210,21 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Is_Deleted")
                     .HasDefaultValueSql("((0))");
 
+                entity.Property(e => e.MicrCode)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("MICR_Code");
+
                 entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
 
                 entity.Property(e => e.ModifiedOn)
                     .HasColumnType("datetime")
                     .HasColumnName("Modified_On");
+
+                entity.Property(e => e.NeftCode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("NEFT_Code");
 
                 entity.Property(e => e.PhoneNo)
                     .HasMaxLength(50)
@@ -203,6 +232,56 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Phone_No");
 
                 entity.Property(e => e.PinNo).HasColumnName("Pin_No");
+
+                entity.Property(e => e.RtgsCode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("RTGS_Code");
+            });
+
+            modelBuilder.Entity<CategoryMaster>(entity =>
+            {
+                entity.HasKey(e => e.CategoryId)
+                    .HasName("PK_Category");
+
+                entity.ToTable("Category_Master");
+
+                entity.Property(e => e.CategoryId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("Category_Id");
+
+                entity.Property(e => e.CategoryAlias)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("Category_Alias");
+
+                entity.Property(e => e.CategoryEmail)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("Category_Email");
+
+                entity.Property(e => e.CategoryName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Category_Name");
+
+                entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
+
+                entity.Property(e => e.CreatedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Created_On");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("Is_Deleted");
+
+                entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
+
+                entity.Property(e => e.ModifiedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Modified_On");
+
+                entity.Property(e => e.RowId).ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<CityMaster>(entity =>
@@ -251,11 +330,21 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Created_On")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.DepartmentAlias)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("Department_Alias");
+
                 entity.Property(e => e.DepartmentCode)
                     .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("Department_Code");
+
+                entity.Property(e => e.DepartmentEmail)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("Department_Email");
 
                 entity.Property(e => e.DepartmentName)
                     .HasMaxLength(50)
@@ -331,16 +420,28 @@ namespace EmployeeFinance.Models
                     .HasColumnType("datetime")
                     .HasColumnName("Created_On");
 
+                entity.Property(e => e.DivisionAlias)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("Division_Alias");
+
+                entity.Property(e => e.DivisionCode)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("Division_Code");
+
+                entity.Property(e => e.DivisionEmail)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("Division_Email");
+
                 entity.Property(e => e.DivisionName)
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Division_Name");
-
-                entity.Property(e => e.DivisionShortName)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("Division_Short_Name");
 
                 entity.Property(e => e.IsDeleted).HasColumnName("Is_Deleted");
 
@@ -369,17 +470,18 @@ namespace EmployeeFinance.Models
                     .IsUnicode(false)
                     .HasColumnName("AAdhar_No");
 
-                entity.Property(e => e.AltEmailId)
-                    .HasMaxLength(50)
+                entity.Property(e => e.AlternateEmail)
+                    .HasMaxLength(30)
                     .IsUnicode(false)
-                    .HasColumnName("Alt_Email_ID");
+                    .HasColumnName("Alternate_Email");
 
                 entity.Property(e => e.BankAcNo)
                     .HasMaxLength(30)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasColumnName("Bank_AcNo");
 
                 entity.Property(e => e.BankName)
-                    .HasMaxLength(30)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Bank_Name");
 
@@ -387,13 +489,12 @@ namespace EmployeeFinance.Models
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.Property(e => e.BranchName)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Branch_Name");
+                entity.Property(e => e.Branch)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.CcEmailId)
-                    .HasMaxLength(50)
+                    .HasMaxLength(15)
                     .IsUnicode(false)
                     .HasColumnName("CC_Email_ID");
 
@@ -406,6 +507,10 @@ namespace EmployeeFinance.Models
 
                 entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
 
+                entity.Property(e => e.DateOfConfirm)
+                    .HasColumnType("date")
+                    .HasColumnName("Date_of_Confirm");
+
                 entity.Property(e => e.DateOfJoin)
                     .HasColumnType("date")
                     .HasColumnName("Date_of_Join");
@@ -414,33 +519,13 @@ namespace EmployeeFinance.Models
                     .HasColumnType("date")
                     .HasColumnName("Date_of_Leave");
 
-                entity.Property(e => e.DepartmentId).HasColumnName("Department_Id");
-
-                entity.Property(e => e.DesigId).HasColumnName("Desig_Id");
-
-                entity.Property(e => e.Division)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.EmailId)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Email_ID");
-
-                entity.Property(e => e.EmpAttendance)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Emp_Attendance");
-
-                entity.Property(e => e.EmpCateId).HasColumnName("Emp_Cate_Id");
-
                 entity.Property(e => e.EmployeeImage)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Employee_Image");
 
                 entity.Property(e => e.EmployeeName)
-                    .HasMaxLength(85)
+                    .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasColumnName("Employee_Name");
 
@@ -449,90 +534,87 @@ namespace EmployeeFinance.Models
                     .IsUnicode(false)
                     .HasColumnName("Employee_Title");
 
-                entity.Property(e => e.EsiDispensary)
-                    .HasMaxLength(50)
+                entity.Property(e => e.EmployeeType)
+                    .HasMaxLength(20)
                     .IsUnicode(false)
-                    .HasColumnName("ESI_Dispensary");
+                    .HasColumnName("Employee_Type");
 
-                entity.Property(e => e.EsiNo)
-                    .HasMaxLength(30)
+                entity.Property(e => e.EsicImpCode)
+                    .HasMaxLength(20)
                     .IsUnicode(false)
-                    .HasColumnName("ESI_No");
+                    .HasColumnName("ESIC_IMP_Code");
+
+                entity.Property(e => e.EsicImpName)
+                    .HasMaxLength(40)
+                    .IsUnicode(false)
+                    .HasColumnName("ESIC_IMP_Name");
+
+                entity.Property(e => e.EsicNewVersion)
+                    .HasMaxLength(40)
+                    .IsUnicode(false)
+                    .HasColumnName("ESIC_New_Version");
+
+                entity.Property(e => e.EsicOldNo)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("ESIC_Old_No");
+
+                entity.Property(e => e.EsicRemark)
+                    .IsUnicode(false)
+                    .HasColumnName("ESIC_Remark");
+
+                entity.Property(e => e.ExtensionNo)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("Extension_No");
 
                 entity.Property(e => e.FathersName)
                     .HasMaxLength(100)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasColumnName("Fathers_Name");
+
+                entity.Property(e => e.FpfNo)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("FPF_No");
 
                 entity.Property(e => e.Gender)
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Grade)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.GriNo)
-                    .HasMaxLength(30)
+                entity.Property(e => e.GratuityCode)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
-                    .HasColumnName("GRI_No");
+                    .HasColumnName("Gratuity_Code");
 
-                entity.Property(e => e.InsuranceNo)
-                    .HasMaxLength(30)
-                    .IsUnicode(false)
-                    .HasColumnName("Insurance_No");
-
-                entity.Property(e => e.IsDefaultAltEmailId).HasColumnName("Is_Default_Alt_EmailId");
-
-                entity.Property(e => e.IsDefaultEmailId).HasColumnName("Is_Default_EmailId");
+                entity.Property(e => e.GroupJoinDate)
+                    .HasColumnType("date")
+                    .HasColumnName("Group_Join_Date");
 
                 entity.Property(e => e.IsDeleted)
                     .HasColumnName("Is_Deleted")
                     .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.IsDisabled)
-                    .HasMaxLength(1)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.IsEsi).HasColumnName("IsESI");
-
-                entity.Property(e => e.IsGri).HasColumnName("IsGRI");
-
-                entity.Property(e => e.IsHigherEpf)
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasColumnName("IsHigherEPF");
-
-                entity.Property(e => e.IsHigherEps)
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasColumnName("IsHigherEPS");
-
-                entity.Property(e => e.IsInternationalworker)
-                    .HasMaxLength(1)
-                    .IsUnicode(false);
+                entity.Property(e => e.IsEsic).HasColumnName("Is_ESIC");
 
                 entity.Property(e => e.IsLeaving).HasColumnName("Is_Leaving");
 
-                entity.Property(e => e.IsPf).HasColumnName("IsPF");
+                entity.Property(e => e.IsPf).HasColumnName("Is_PF");
 
-                entity.Property(e => e.IsRestrictPf).HasColumnName("Is_Restrict_PF");
+                entity.Property(e => e.IsPt).HasColumnName("Is_PT");
 
-                entity.Property(e => e.IsZeroPension).HasColumnName("Is_Zero_Pension");
+                entity.Property(e => e.LastIncrementDate)
+                    .HasColumnType("date")
+                    .HasColumnName("Last_Increment_Date");
 
-                entity.Property(e => e.IsZeroPt).HasColumnName("Is_Zero_PT");
+                entity.Property(e => e.LastWorkingDate)
+                    .HasColumnType("date")
+                    .HasColumnName("Last_Working_Date");
 
                 entity.Property(e => e.MaritalStatus)
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("Marital_Status");
-
-                entity.Property(e => e.MarriageDate)
-                    .HasColumnType("date")
-                    .HasColumnName("Marriage_Date");
-
-                entity.Property(e => e.Mobile)
-                    .HasMaxLength(15)
-                    .IsUnicode(false);
 
                 entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
 
@@ -542,75 +624,97 @@ namespace EmployeeFinance.Models
 
                 entity.Property(e => e.MothersName)
                     .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.NomineeName)
-                    .HasMaxLength(47)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasColumnName("Mothers_Name");
 
                 entity.Property(e => e.Occupation)
                     .HasMaxLength(200)
                     .IsUnicode(false);
+
+                entity.Property(e => e.OfficePhone)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("Office_Phone");
 
                 entity.Property(e => e.Panno)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("PANno");
 
-                entity.Property(e => e.PassportNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.PastServiceInDay).HasColumnName("Past_Service_inDay");
 
                 entity.Property(e => e.PermanentArea)
-                    .HasMaxLength(100)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Permanent_Area");
 
                 entity.Property(e => e.PermanentCity)
-                    .HasMaxLength(30)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Permanent_City");
+
+                entity.Property(e => e.PermanentDistrict)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Permanent_District");
 
                 entity.Property(e => e.PermanentPincode)
                     .HasMaxLength(6)
                     .IsUnicode(false)
                     .HasColumnName("Permanent_Pincode");
 
-                entity.Property(e => e.PermanentResName)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("Permanent_Res_Name");
-
-                entity.Property(e => e.PermanentResNo)
+                entity.Property(e => e.PermanentPlot)
                     .HasMaxLength(30)
                     .IsUnicode(false)
-                    .HasColumnName("Permanent_Res_No");
-
-                entity.Property(e => e.PermanentRoad)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("Permanent_Road");
+                    .HasColumnName("Permanent_Plot");
 
                 entity.Property(e => e.PermanentState)
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("Permanent_State");
 
-                entity.Property(e => e.PfDeptFile)
+                entity.Property(e => e.PermanentStreet)
                     .HasMaxLength(50)
                     .IsUnicode(false)
-                    .HasColumnName("PF_Dept_File");
+                    .HasColumnName("Permanent_Street");
+
+                entity.Property(e => e.PermanentTown)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Permanent_Town");
+
+                entity.Property(e => e.PersonalEmail)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("Personal_Email");
+
+                entity.Property(e => e.PersonalPhone)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("Personal_Phone");
+
+                entity.Property(e => e.PfJoinDate)
+                    .HasColumnType("date")
+                    .HasColumnName("PF_Join_Date");
+
+                entity.Property(e => e.PfNewVersion)
+                    .HasMaxLength(40)
+                    .IsUnicode(false)
+                    .HasColumnName("PF_New_Version");
 
                 entity.Property(e => e.PfNo)
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("PF_No");
 
-                entity.Property(e => e.PhoneNo)
-                    .HasMaxLength(15)
-                    .IsUnicode(false);
+                entity.Property(e => e.PfRemark)
+                    .IsUnicode(false)
+                    .HasColumnName("PF_Remark");
+
+                entity.Property(e => e.PranNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("PRAN_No");
 
                 entity.Property(e => e.PresentArea)
                     .HasMaxLength(100)
@@ -618,67 +722,91 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Present_Area");
 
                 entity.Property(e => e.PresentCity)
-                    .HasMaxLength(30)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Present_City");
+
+                entity.Property(e => e.PresentDistrict)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Present_District");
 
                 entity.Property(e => e.PresentPincode)
                     .HasMaxLength(6)
                     .IsUnicode(false)
                     .HasColumnName("Present_Pincode");
 
-                entity.Property(e => e.PresentResName)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("Present_Res_Name");
-
-                entity.Property(e => e.PresentResNo)
+                entity.Property(e => e.PresentPlot)
                     .HasMaxLength(30)
                     .IsUnicode(false)
-                    .HasColumnName("Present_Res_No");
-
-                entity.Property(e => e.PresentRoad)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("Present_Road");
+                    .HasColumnName("Present_Plot");
 
                 entity.Property(e => e.PresentState)
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("Present_State");
 
+                entity.Property(e => e.PresentStreet)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("Present_Street");
+
+                entity.Property(e => e.PresentTown)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("Present_Town");
+
+                entity.Property(e => e.ProbationDate)
+                    .HasColumnType("date")
+                    .HasColumnName("Probation_Date");
+
+                entity.Property(e => e.ProcessStartDate)
+                    .HasColumnType("date")
+                    .HasColumnName("Process_Start_Date");
+
+                entity.Property(e => e.PtNo)
+                    .HasMaxLength(40)
+                    .IsUnicode(false)
+                    .HasColumnName("PT_No");
+
                 entity.Property(e => e.ReasonOfLeave)
                     .HasMaxLength(250)
                     .IsUnicode(false)
                     .HasColumnName("Reason_Of_Leave");
 
-                entity.Property(e => e.SalaryCalcFrom)
-                    .HasColumnType("date")
-                    .HasColumnName("Salary_Calc_From");
+                entity.Property(e => e.Remarks).IsUnicode(false);
 
-                entity.Property(e => e.SalaryStructureId)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Salary_Structure_id");
-
-                entity.Property(e => e.StdCode)
+                entity.Property(e => e.ResidentialMobile)
                     .HasMaxLength(15)
                     .IsUnicode(false)
-                    .HasColumnName("STD_Code");
+                    .HasColumnName("Residential_Mobile");
+
+                entity.Property(e => e.ResidentialPhone)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("Residential_Phone");
+
+                entity.Property(e => e.ResignOfferDate)
+                    .HasColumnType("date")
+                    .HasColumnName("Resign_Offer_Date");
+
+                entity.Property(e => e.RetireDate)
+                    .HasColumnType("date")
+                    .HasColumnName("Retire_Date");
+
+                entity.Property(e => e.SpouseName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("Spouse_Name");
 
                 entity.Property(e => e.UanNo)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("UAN_No");
 
-                entity.Property(e => e.VoterId)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.WardCircle)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Ward_Circle");
+                entity.Property(e => e.Vpf)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasColumnName("VPF");
             });
 
             modelBuilder.Entity<EmployeeDisciplinaryDtl>(entity =>
@@ -1012,12 +1140,30 @@ namespace EmployeeFinance.Models
                     .ValueGeneratedNever()
                     .HasColumnName("Grade_Id");
 
+                entity.Property(e => e.BasicAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Basic_Amount");
+
+                entity.Property(e => e.ClaculateBasedOn)
+                    .HasMaxLength(40)
+                    .IsUnicode(false)
+                    .HasColumnName("Claculate_Based_on");
+
                 entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
 
                 entity.Property(e => e.CreatedOn)
                     .HasColumnType("datetime")
                     .HasColumnName("Created_On")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.GradeAlias)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("Grade_Alias");
 
                 entity.Property(e => e.GradeName)
                     .HasMaxLength(50)
@@ -1033,6 +1179,8 @@ namespace EmployeeFinance.Models
                 entity.Property(e => e.ModifiedOn)
                     .HasColumnType("datetime")
                     .HasColumnName("Modified_On");
+
+                entity.Property(e => e.NoticePeriod).HasColumnName("Notice_Period");
 
                 entity.Property(e => e.RowId).ValueGeneratedOnAdd();
             });
@@ -1226,6 +1374,34 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Occupation_Short_Name");
             });
 
+            modelBuilder.Entity<PayCalculationTypeMst>(entity =>
+            {
+                entity.ToTable("PayCalculationType_Mst");
+
+                entity.Property(e => e.Allias)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CalculationType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Calculation_Type");
+            });
+
+            modelBuilder.Entity<PayHeadAttacheMst>(entity =>
+            {
+                entity.ToTable("PayHeadAttache_Mst");
+
+                entity.Property(e => e.Allias)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AttachTo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Attach_To");
+            });
+
             modelBuilder.Entity<PayHeadDetail>(entity =>
             {
                 entity.HasKey(e => e.PayheadDtlId);
@@ -1288,6 +1464,10 @@ namespace EmployeeFinance.Models
                     .HasColumnType("datetime")
                     .HasColumnName("Modified_On");
 
+                entity.Property(e => e.Narration)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.PayheadCode)
                     .IsRequired()
                     .HasMaxLength(20)
@@ -1318,81 +1498,6 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Round_Off");
             });
 
-            modelBuilder.Entity<PayHeadMapMaster>(entity =>
-            {
-                entity.HasKey(e => new { e.RowId, e.PayheadMapId });
-
-                entity.ToTable("PayHead_Map_Master");
-
-                entity.Property(e => e.RowId).ValueGeneratedOnAdd();
-
-                entity.Property(e => e.PayheadMapId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("Payhead_Map_Id");
-
-                entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
-
-                entity.Property(e => e.CreatedOn)
-                    .HasColumnType("datetime")
-                    .HasColumnName("Created_On")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.CutoffAmount)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("Cutoff_Amount");
-
-                entity.Property(e => e.EffectiveFrom)
-                    .HasColumnType("date")
-                    .HasColumnName("Effective_From");
-
-                entity.Property(e => e.FormulaName)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Formula_Name");
-
-                entity.Property(e => e.FormulaValue)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("Formula_Value");
-
-                entity.Property(e => e.IsDeleted)
-                    .HasColumnName("Is_Deleted")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
-
-                entity.Property(e => e.ModifiedOn)
-                    .HasColumnType("datetime")
-                    .HasColumnName("Modified_On");
-
-                entity.Property(e => e.PayheadId)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("Payhead_Id");
-
-                entity.Property(e => e.PaymapCalcBasic)
-                    .HasMaxLength(5)
-                    .IsUnicode(false)
-                    .HasColumnName("Paymap_Calc_Basic");
-
-                entity.Property(e => e.PaymapCalcRate)
-                    .HasColumnType("decimal(10, 2)")
-                    .HasColumnName("Paymap_Calc_Rate");
-
-                entity.Property(e => e.PaymapCalcType)
-                    .HasMaxLength(5)
-                    .IsUnicode(false)
-                    .HasColumnName("Paymap_Calc_Type");
-
-                entity.Property(e => e.RoundOff)
-                    .HasMaxLength(5)
-                    .IsUnicode(false)
-                    .HasColumnName("Round_Off");
-
-                entity.Property(e => e.SalaryStruId).HasColumnName("Salary_Stru_Id");
-            });
-
             modelBuilder.Entity<PayHeadMst>(entity =>
             {
                 entity.HasKey(e => new { e.PayHeadId, e.PayHeadCode })
@@ -1400,7 +1505,9 @@ namespace EmployeeFinance.Models
 
                 entity.ToTable("PayHead_Mst");
 
-                entity.Property(e => e.PayHeadId).HasColumnName("PayHead_Id");
+                entity.Property(e => e.PayHeadId)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("PayHead_Id");
 
                 entity.Property(e => e.PayHeadCode)
                     .HasMaxLength(20)
@@ -1467,23 +1574,68 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Use_For_NetPay");
             });
 
-            modelBuilder.Entity<PayheadMapSlab>(entity =>
+            modelBuilder.Entity<PayheadSlab>(entity =>
             {
-                entity.HasKey(e => new { e.RowId, e.PayheadMapSlabId });
+                entity.HasKey(e => e.PaySlabId);
 
-                entity.ToTable("Payhead_Map_Slab");
+                entity.ToTable("Payhead_Slab");
 
-                entity.Property(e => e.RowId).ValueGeneratedOnAdd();
+                entity.Property(e => e.PaySlabId).HasColumnName("PaySlab_Id");
 
-                entity.Property(e => e.PayheadMapSlabId).HasColumnName("Payhead_Map_Slab_Id");
+                entity.Property(e => e.AprAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Apr_Amount");
+
+                entity.Property(e => e.AugAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Aug_Amount");
 
                 entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
 
                 entity.Property(e => e.CreatedOn)
                     .HasColumnType("datetime")
-                    .HasColumnName("Created_On");
+                    .HasColumnName("Created_On")
+                    .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.IsDeleted).HasColumnName("Is_Deleted");
+                entity.Property(e => e.DecAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Dec_Amount");
+
+                entity.Property(e => e.FebAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Feb_Amount");
+
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("Is_Deleted")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.JanAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Jan_Amount");
+
+                entity.Property(e => e.JulyAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("July_Amount");
+
+                entity.Property(e => e.JuneAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("June_Amount");
+
+                entity.Property(e => e.MarAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Mar_Amount");
+
+                entity.Property(e => e.MaximumAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Maximum_Amount");
+
+                entity.Property(e => e.MayAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("May_Amount");
+
+                entity.Property(e => e.MinimumAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Minimum_Amount");
 
                 entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
 
@@ -1491,29 +1643,40 @@ namespace EmployeeFinance.Models
                     .HasColumnType("datetime")
                     .HasColumnName("Modified_On");
 
+                entity.Property(e => e.Month)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.NovAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Nov_Amount");
+
+                entity.Property(e => e.OctAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Oct_Amount");
+
+                entity.Property(e => e.PayheadCode)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("Payhead_Code");
+
                 entity.Property(e => e.PayheadId).HasColumnName("Payhead_Id");
 
-                entity.Property(e => e.PayheadMapId).HasColumnName("Payhead_Map_Id");
-
-                entity.Property(e => e.PaymapAmount)
+                entity.Property(e => e.SepAmount)
                     .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("Paymap_Amount");
+                    .HasColumnName("Sep_Amount");
 
-                entity.Property(e => e.PaymapMaxAmount)
-                    .HasMaxLength(5)
-                    .IsUnicode(false)
-                    .HasColumnName("Paymap_Max_Amount");
+                entity.Property(e => e.State)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.PaymapMinAmount)
+                entity.Property(e => e.WomanAmount)
                     .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("Paymap_Min_Amount");
+                    .HasColumnName("Woman_Amount");
 
-                entity.Property(e => e.PaymapType)
-                    .HasMaxLength(5)
-                    .IsUnicode(false)
-                    .HasColumnName("Paymap_Type");
-
-                entity.Property(e => e.SalaryStrId).HasColumnName("Salary_Str_Id");
+                entity.Property(e => e.Year)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<PfEsiRateSetting>(entity =>
@@ -1703,6 +1866,90 @@ namespace EmployeeFinance.Models
                     .HasColumnName("Modified_On");
 
                 entity.Property(e => e.PfsettAge).HasColumnName("PFSett_Age");
+            });
+
+            modelBuilder.Entity<PolicyTypeMaster>(entity =>
+            {
+                entity.HasKey(e => e.PolicyId)
+                    .HasName("PK_policytype");
+
+                entity.ToTable("Policy_Type_Master");
+
+                entity.Property(e => e.PolicyId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("Policy_Id");
+
+                entity.Property(e => e.AttachTo)
+                    .IsRequired()
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("Attach_To");
+
+                entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
+
+                entity.Property(e => e.CreatedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Created_On");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("Is_Deleted");
+
+                entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
+
+                entity.Property(e => e.ModifiedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Modified_On");
+
+                entity.Property(e => e.PolicyName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Policy_Name");
+
+                entity.Property(e => e.RowId).ValueGeneratedOnAdd();
+            });
+
+            modelBuilder.Entity<ProjectMaster>(entity =>
+            {
+                entity.HasKey(e => e.ProjectId);
+
+                entity.ToTable("Project_Master");
+
+                entity.Property(e => e.ProjectId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("Project_Id");
+
+                entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
+
+                entity.Property(e => e.CreatedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Created_On");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("Is_Deleted");
+
+                entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
+
+                entity.Property(e => e.ModifiedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Modified_On");
+
+                entity.Property(e => e.ProjectAlias)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("Project_Alias");
+
+                entity.Property(e => e.ProjectEmail)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("Project_Email");
+
+                entity.Property(e => e.ProjectName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Project_Name");
+
+                entity.Property(e => e.RowId).ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<PtgroupMst>(entity =>
@@ -2001,6 +2248,46 @@ namespace EmployeeFinance.Models
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("Site_Name");
+            });
+
+            modelBuilder.Entity<SkillMaster>(entity =>
+            {
+                entity.HasKey(e => e.SkillId)
+                    .HasName("PK_skill");
+
+                entity.ToTable("Skill_Master");
+
+                entity.Property(e => e.SkillId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("Skill_Id");
+
+                entity.Property(e => e.CreatedBy).HasColumnName("Created_By");
+
+                entity.Property(e => e.CreatedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Created_On");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("Is_Deleted");
+
+                entity.Property(e => e.ModifiedBy).HasColumnName("Modified_By");
+
+                entity.Property(e => e.ModifiedOn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Modified_On");
+
+                entity.Property(e => e.RowId).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.SkillAlias)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("Skill_Alias");
+
+                entity.Property(e => e.SkillName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Skill_Name");
             });
 
             modelBuilder.Entity<StateMaster>(entity =>

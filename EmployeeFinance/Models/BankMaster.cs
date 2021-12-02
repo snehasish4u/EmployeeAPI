@@ -13,10 +13,15 @@ namespace EmployeeFinance.Models
         public string BankShtName { get; set; }
         public string BankAccNo { get; set; }
         public string Address { get; set; }
-        public string BranchName { get; set; }
-        public string IfscCode { get; set; }
         public int? PinNo { get; set; }
         public string PhoneNo { get; set; }
+        public string BranchCode { get; set; }
+        public string BranchName { get; set; }
+        public string AccountType { get; set; }
+        public string MicrCode { get; set; }
+        public string IfscCode { get; set; }
+        public string RtgsCode { get; set; }
+        public string NeftCode { get; set; }
         public int? CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }
         public int? ModifiedBy { get; set; }
